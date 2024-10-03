@@ -1,0 +1,68 @@
+ public float rotationSpeed = 100f;
+    public float jumpHeight = 8f;
+
+    public AudioClip Hit01;
+    public AudioClip Hit02;
+    public AudioClip Hit03;
+
+    private bool isFalling = false;
+
+    private AudioSource audioSource;
+
+    private void Start()
+    {
+        
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Update()
+    {
+        // Handle ball rotation.
+        float rotation = Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime;
+        GetComponent<Rigidbody>().AddRelativeTorque(Vector3.back * rotation);
+
+        if (Input.GetKeyDown(KeyCode.Space) && !isFalling)
+        {
+            GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, jumpHeight, GetComponent<Rigidbody>().velocity.z);
+            PlayOnceTrue();
+            isFalling = true;
+        }
+        
+        
+    }
+   
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (playOnce)
+        {
+            int theHit = Random.Range(0, 3);
+            switch (theHit)
+            {
+                case 0:
+                    audioSource.clip = Hit01;
+                    break;
+                case 1:
+                    audioSource.clip = Hit02;
+                    break;
+                default:
+                    audioSource.clip = Hit03;
+                    break;
+            }
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.Play();
+            playOnce = false;
+        }
+        isFalling = false;
+    }
+
+    private void PlayOnceTrue()
+    {
+        StartCoroutine(ResetPlayOnce(0f));
+    }
+
+    private System.Collections.IEnumerator ResetPlayOnce(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        playOnce = true;
+    }
